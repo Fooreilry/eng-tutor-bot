@@ -1,0 +1,22 @@
+services:
+  bot:
+    build: .
+    container_name: alex-bot
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+    restart: always
+    command: python main.py
+
+  api:
+    build: .
+    container_name: alex-api
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    restart: always
+    command: uvicorn API.server:api --host 0.0.0.0 --port 8000 --reload

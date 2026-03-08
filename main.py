@@ -11,11 +11,6 @@ load_dotenv()
 
 bot_key = os.getenv("T_BOT_KEY")
 
-response = client.models.generate_content(
-    model="gemini-3-flash-preview",
-    contents="Explain how AI works in a few words",
-)
-
 bot = Bot(token=bot_key)
 disp = Dispatcher()
 
@@ -35,3 +30,8 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+
+    # response = client.models.generate_content(
+    #     model="gemini-3-flash-preview",
+    #     contents="Explain how AI works in a few words",
+    # )
