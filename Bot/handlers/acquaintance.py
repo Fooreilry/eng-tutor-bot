@@ -1,15 +1,23 @@
-from aiogram import Router, F
-from aiogram.types import Message, InlineKeyboardButton, CallbackQuery, ReplyKeyboardMarkup, KeyboardButton
+from aiogram import F, Router
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
+from aiogram.types import (
+    CallbackQuery,
+    InlineKeyboardButton,
+    KeyboardButton,
+    Message,
+    ReplyKeyboardMarkup,
+)
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
+from Bot.keyboard import get_main_keyboard
 from Bot.states import UserRegistration
 
 acquaintance_router = Router(name="Acquaintance")
 
 
 # --- Keyboards ---
+
 
 def get_level_keyboard() -> InlineKeyboardBuilder:
     """Inline keyboard for English level selection"""
@@ -37,30 +45,19 @@ def get_testing_keyboard() -> InlineKeyboardBuilder:
     builder = InlineKeyboardBuilder()
     builder.row(
         InlineKeyboardButton(text="Yep, let's go!", callback_data="start_testing"),
-        InlineKeyboardButton(text="Nah, later", callback_data="skip_testing")
+        InlineKeyboardButton(text="Nah, later", callback_data="skip_testing"),
     )
     return builder
 
 
-def get_main_keyboard() -> ReplyKeyboardMarkup:
-    """Main reply keyboard"""
-    return ReplyKeyboardMarkup(
-        keyboard=[
-            [KeyboardButton(text="Начать диалог")]
-        ],
-        resize_keyboard=True
-    )
-
-
 # --- Start command ---
+
 
 @acquaintance_router.message(Command("start"))
 async def cmd_start(message: Message, state: FSMContext):
     await state.clear()
 
-    await message.answer(
-        f"Yo, {message.from_user.first_name}! What's good?"
-    )
+    await message.answer(f"Yo, {message.from_user.first_name}! What's good?")
     await message.answer(
         "Я Alex, твой new buddy из Нью-Йорка. "
         "Буду помогать тебе with English, но не как скучный teacher, "
@@ -68,16 +65,21 @@ async def cmd_start(message: Message, state: FSMContext):
     )
 
     builder = InlineKeyboardBuilder()
-    builder.row(InlineKeyboardButton(text="А ты кто такой?", callback_data="about_alex"))
-    builder.row(InlineKeyboardButton(text="Давай расскажу о себе", callback_data="about_user"))
+    builder.row(
+        InlineKeyboardButton(text="А ты кто такой?", callback_data="about_alex")
+    )
+    builder.row(
+        InlineKeyboardButton(text="Давай расскажу о себе", callback_data="about_user")
+    )
 
     await message.answer(
         "So, с чего начнём? Хочешь узнать обо мне или сразу познакомимся?",
-        reply_markup=builder.as_markup()
+        reply_markup=builder.as_markup(),
     )
 
 
 # --- About Alex ---
+
 
 @acquaintance_router.callback_query(F.data == "about_alex")
 async def about_alex(cb: CallbackQuery):
@@ -96,15 +98,19 @@ async def about_alex(cb: CallbackQuery):
     )
 
     builder = InlineKeyboardBuilder()
-    builder.row(InlineKeyboardButton(text="Sounds cool! Расскажу о себе", callback_data="about_user"))
+    builder.row(
+        InlineKeyboardButton(
+            text="Sounds cool! Расскажу о себе", callback_data="about_user"
+        )
+    )
 
     await cb.message.answer(
-        "Now your turn — tell me about yourself?",
-        reply_markup=builder.as_markup()
+        "Now your turn — tell me about yourself?", reply_markup=builder.as_markup()
     )
 
 
 # --- User registration flow ---
+
 
 @acquaintance_router.callback_query(F.data == "about_user")
 async def start_registration(cb: CallbackQuery, state: FSMContext):
@@ -123,13 +129,11 @@ async def process_name(message: Message, state: FSMContext):
     name = message.text.strip()
     await state.update_data(name=name)
 
-    await message.answer(
-        f"{name}! Cool name, I like it."
-    )
+    await message.answer(f"{name}! Cool name, I like it.")
     await message.answer(
         "Теперь расскажи, какой у тебя сейчас level английского? "
         "Не парься если не знаешь точно — выбери примерно, потом разберёмся.",
-        reply_markup=get_level_keyboard().as_markup()
+        reply_markup=get_level_keyboard().as_markup(),
     )
 
     await state.set_state(UserRegistration.level)
@@ -177,13 +181,15 @@ async def process_interests(message: Message, state: FSMContext):
         "Last question — может хочешь что-то ещё добавить о себе? "
         "Любые details которые помогут мне лучше тебя понять. "
         "Или можешь skip, if you want.",
-        reply_markup=get_skip_keyboard().as_markup()
+        reply_markup=get_skip_keyboard().as_markup(),
     )
 
     await state.set_state(UserRegistration.additional)
 
 
-@acquaintance_router.callback_query(UserRegistration.additional, F.data == "skip_additional")
+@acquaintance_router.callback_query(
+    UserRegistration.additional, F.data == "skip_additional"
+)
 async def skip_additional(cb: CallbackQuery, state: FSMContext):
     await cb.answer()
     await state.update_data(additional=None)
@@ -213,49 +219,34 @@ async def finish_registration(message: Message, state: FSMContext):
     # Build prompt info (for future use)
     prompt_info = f"""
 User Profile:
-- Name: {data.get('name')}
-- English Level: {data.get('level')}
-- Interests: {data.get('interests')}
-- Additional Info: {data.get('additional') or 'None'}
+- Name: {data.get("name")}
+- English Level: {data.get("level")}
+- Interests: {data.get("interests")}
+- Additional Info: {data.get("additional") or "None"}
 """
     print("PROMPT INFO:")
     print(prompt_info)
 
-    await state.clear()
+    # Don't clear state — keep user data (name, level, interests) for testing handler
+    await state.set_state(None)
 
     await message.answer(
         f"Alright {data.get('name')}, I got everything! "
         "Теперь я знаю тебя немного лучше."
     )
-    await message.answer(
-        "By the way, хочешь пройти quick test чтобы я точнее понял твой level? "
-        "Это займёт just a few minutes. No pressure though!",
-        reply_markup=get_testing_keyboard().as_markup()
-    )
 
+    level = data.get("level", "A1")
 
-# --- Testing decision ---
-
-@acquaintance_router.callback_query(F.data == "start_testing")
-async def start_testing(cb: CallbackQuery):
-    await cb.answer()
-
-    await cb.message.answer(
-        "Let's do this! Сейчас я задам тебе несколько questions...\n\n"
-        "Начало тестирования"
-    )
-    # TODO: Implement actual testing in exercises handler
-
-
-@acquaintance_router.callback_query(F.data == "skip_testing")
-async def skip_testing(cb: CallbackQuery):
-    await cb.answer()
-
-    await cb.message.answer(
-        "No problem! Можем пройти тест whenever you want. "
-        "А пока — let's just chat!",
-        reply_markup=get_main_keyboard()
-    )
-    await cb.message.answer(
-        "Жми 'Начать диалог' когда будешь ready, и мы начнём общаться!"
-    )
+    if level == "A1":
+        # A1 — самый базовый уровень, тест не предлагаем
+        await message.answer(
+            "Мы начнём with the basics — step by step, no rush! "
+            "Let's just chat and have fun! 🤙",
+            reply_markup=get_main_keyboard(),
+        )
+    else:
+        await message.answer(
+            "By the way, хочешь пройти quick test чтобы я точнее понял твой level? "
+            "Это займёт just a few minutes. No pressure though!",
+            reply_markup=get_testing_keyboard().as_markup(),
+        )

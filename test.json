@@ -1,0 +1,303 @@
+{
+  "test_info": {
+    "name": "English Placement Test",
+    "description": "Тест для определения уровня грамматики",
+    "levels": [
+      "A1",
+      "A2",
+      "B1",
+      "B2"
+    ],
+    "scoring": {
+      "A1": "0-40",
+      "A2": "41-60",
+      "B1": "61-80",
+      "B2": "81-100"
+    }
+  },
+  "questions": [
+    {
+      "id": 1,
+      "level": "A1",
+      "type": "fill_in_the_blank",
+      "topic": "verb_to_be",
+      "question": "Вставь правильную форму глагола to be:\nShe ___ a student.",
+      "answer": "is",
+      "hint": "Подумай о форме глагола для she/he/it",
+      "explanation": "С местоимением she используется форма IS"
+    },
+    {
+      "id": 2,
+      "level": "A1",
+      "type": "multiple_choice",
+      "topic": "articles",
+      "question": "Выбери правильный вариант:\nI have ___ dog. ___ dog is very friendly.",
+      "options": [
+        "a / The",
+        "the / A",
+        "a / A",
+        "the / The"
+      ],
+      "answer": "a / The",
+      "explanation": "Первый раз упоминаем — неопределённый артикль A. Второй раз (уже знаем о чём речь) — определённый THE"
+    },
+    {
+      "id": 3,
+      "level": "A1",
+      "type": "translate",
+      "topic": "present_simple",
+      "question": "Переведи на английский:\n«Я каждое утро пью кофе»",
+      "answer": "I drink coffee every morning",
+      "acceptable_answers": [
+        "I drink coffee every morning",
+        "Every morning I drink coffee",
+        "I drink coffee in the morning"
+      ],
+      "explanation": "Present Simple используется для регулярных действий и привычек"
+    },
+    {
+      "id": 4,
+      "level": "A1",
+      "type": "error_correction",
+      "topic": "present_simple_third_person",
+      "question": "Найди и исправь ошибку в предложении:\nHe don't like pizza.",
+      "answer": "He doesn't like pizza.",
+      "explanation": "С he/she/it в Present Simple используется doesn't (не don't)"
+    },
+    {
+      "id": 5,
+      "level": "A1",
+      "type": "multiple_choice",
+      "topic": "pronouns",
+      "question": "Выбери правильный вариант:\nThis is my friend. ___ name is Tom.",
+      "options": [
+        "His",
+        "Her",
+        "Its",
+        "Their"
+      ],
+      "answer": "His",
+      "explanation": "Tom — мужчина, поэтому притяжательное местоимение HIS"
+    },
+    {
+      "id": 6,
+      "level": "A1",
+      "type": "word_order",
+      "topic": "sentence_structure",
+      "question": "Составь правильное предложение из слов:\nevery / She / school / goes / day / to",
+      "answer": "She goes to school every day.",
+      "explanation": "Порядок слов в английском: Подлежащее + Сказуемое + Объект + Обстоятельство"
+    },
+    {
+      "id": 7,
+      "level": "A2",
+      "type": "multiple_choice",
+      "topic": "past_simple",
+      "question": "Выбери правильный вариант:\nYesterday I ___ to the cinema.",
+      "options": [
+        "go",
+        "goes",
+        "went",
+        "gone"
+      ],
+      "answer": "went",
+      "explanation": "Yesterday — прошедшее время. Go → неправильный глагол → went"
+    },
+    {
+      "id": 8,
+      "level": "A2",
+      "type": "fill_in_the_blank",
+      "topic": "present_continuous",
+      "question": "Вставь правильную форму глагола:\nLook! The children ___ (play) in the park.",
+      "answer": "are playing",
+      "explanation": "Look! — сигнал Present Continuous. Действие происходит прямо сейчас → are playing"
+    },
+    {
+      "id": 9,
+      "level": "A2",
+      "type": "translate",
+      "topic": "comparatives",
+      "question": "Переведи на английский:\n«Моя сумка тяжелее твоей»",
+      "answer": "My bag is heavier than yours.",
+      "acceptable_answers": [
+        "My bag is heavier than yours",
+        "My bag is heavier than your bag"
+      ],
+      "explanation": "Сравнительная степень: heavy → heavier (y → ier). Используем than для сравнения"
+    },
+    {
+      "id": 10,
+      "level": "A2",
+      "type": "error_correction",
+      "topic": "past_simple_questions",
+      "question": "Найди и исправь ошибку:\nWhere did she went last night?",
+      "answer": "Where did she go last night?",
+      "explanation": "После did используется инфинитив без to — go, а не went"
+    },
+    {
+      "id": 11,
+      "level": "A2",
+      "type": "multiple_choice",
+      "topic": "modal_verbs",
+      "question": "Выбери правильный вариант:\nYou ___ eat in the library. It's not allowed.",
+      "options": [
+        "mustn't",
+        "don't have to",
+        "couldn't",
+        "needn't"
+      ],
+      "answer": "mustn't",
+      "explanation": "MUSTN'T — запрет (нельзя). DON'T HAVE TO — нет необходимости (не обязательно)"
+    },
+    {
+      "id": 12,
+      "level": "A2",
+      "type": "fill_in_the_blank",
+      "topic": "there_is_there_are",
+      "question": "Вставь there is или there are:\n___ a lot of people in the street today.",
+      "answer": "There are",
+      "explanation": "A lot of people — множественное число → there ARE"
+    },
+    {
+      "id": 13,
+      "level": "B1",
+      "type": "multiple_choice",
+      "topic": "present_perfect_vs_past_simple",
+      "question": "Выбери правильный вариант:\nI ___ this movie last week.",
+      "options": [
+        "have seen",
+        "saw",
+        "have saw",
+        "seen"
+      ],
+      "answer": "saw",
+      "explanation": "Last week — конкретное время в прошлом → Past Simple (saw). Present Perfect не используется с конкретным временем"
+    },
+    {
+      "id": 14,
+      "level": "B1",
+      "type": "translate",
+      "topic": "conditionals_first",
+      "question": "Переведи на английский:\n«Если завтра будет дождь, я останусь дома»",
+      "answer": "If it rains tomorrow, I will stay at home.",
+      "acceptable_answers": [
+        "If it rains tomorrow, I will stay at home",
+        "If it rains tomorrow, I'll stay at home",
+        "I will stay at home if it rains tomorrow"
+      ],
+      "explanation": "First Conditional: If + Present Simple → will + инфинитив. В придаточном условия будущее время НЕ используется"
+    },
+    {
+      "id": 15,
+      "level": "B1",
+      "type": "error_correction",
+      "topic": "passive_voice",
+      "question": "Найди и исправь ошибку:\nThis book was wrote by Tolstoy.",
+      "answer": "This book was written by Tolstoy.",
+      "explanation": "Passive Voice: was + Past Participle. Write → неправильный глагол → written (не wrote)"
+    },
+    {
+      "id": 16,
+      "level": "B1",
+      "type": "multiple_choice",
+      "topic": "reported_speech",
+      "question": "Переведи прямую речь в косвенную:\nShe said: 'I am tired.'\nShe said that she ___.",
+      "options": [
+        "is tired",
+        "was tired",
+        "were tired",
+        "has been tired"
+      ],
+      "answer": "was tired",
+      "explanation": "В косвенной речи время сдвигается назад: am/is → was"
+    },
+    {
+      "id": 17,
+      "level": "B1",
+      "type": "fill_in_the_blank",
+      "topic": "gerund_vs_infinitive",
+      "question": "Вставь правильную форму глагола:\nI enjoy ___ (listen) to music in the evenings.",
+      "answer": "listening",
+      "explanation": "После enjoy всегда используется герундий (-ing форма)"
+    },
+    {
+      "id": 18,
+      "level": "B1",
+      "type": "word_order",
+      "topic": "indirect_questions",
+      "question": "Составь косвенный вопрос:\nWhere does she live? → Can you tell me ___?",
+      "answer": "Can you tell me where she lives?",
+      "explanation": "В косвенных вопросах порядок слов как в утверждении (не как в вопросе): where she lives (не where does she live)"
+    },
+    {
+      "id": 19,
+      "level": "B2",
+      "type": "multiple_choice",
+      "topic": "conditionals_third",
+      "question": "Выбери правильный вариант:\nIf he ___ harder, he would have passed the exam.",
+      "options": [
+        "studied",
+        "had studied",
+        "would study",
+        "has studied"
+      ],
+      "answer": "had studied",
+      "explanation": "Third Conditional (нереальное условие в прошлом): If + Past Perfect → would have + Past Participle"
+    },
+    {
+      "id": 20,
+      "level": "B2",
+      "type": "translate",
+      "topic": "perfect_continuous",
+      "question": "Переведи на английский:\n«Она работает здесь уже пять лет»",
+      "answer": "She has been working here for five years.",
+      "acceptable_answers": [
+        "She has been working here for five years",
+        "She's been working here for five years"
+      ],
+      "explanation": "Действие началось в прошлом и продолжается сейчас → Present Perfect Continuous. For — для периода времени"
+    },
+    {
+      "id": 21,
+      "level": "B2",
+      "type": "error_correction",
+      "topic": "mixed_conditionals",
+      "question": "Найди и исправь ошибку:\nIf I would have more time, I would learn Japanese.",
+      "answer": "If I had more time, I would learn Japanese.",
+      "explanation": "Second Conditional: If + Past Simple (не would) → would + инфинитив. Would никогда не ставится в условной части"
+    },
+    {
+      "id": 22,
+      "level": "B2",
+      "type": "multiple_choice",
+      "topic": "inversions",
+      "question": "Выбери правильный вариант (инверсия):\n___ such a boring film.",
+      "options": [
+        "Never I have seen",
+        "Never have I seen",
+        "I have never seen",
+        "Have I never seen"
+      ],
+      "answer": "Never have I seen",
+      "explanation": "При отрицательных наречиях в начале предложения (Never, Rarely, Seldom) используется инверсия: вспомогательный глагол + подлежащее"
+    },
+    {
+      "id": 23,
+      "level": "B2",
+      "type": "fill_in_the_blank",
+      "topic": "subjunctive",
+      "question": "Вставь правильную форму:\nThe doctor recommended that he ___ (take) more rest.",
+      "answer": "take",
+      "explanation": "После recommend/suggest/insist that используется сослагательное наклонение — инфинитив без окончания для всех лиц (he take, не he takes)"
+    },
+    {
+      "id": 24,
+      "level": "B2",
+      "type": "translate",
+      "topic": "cleft_sentences",
+      "question": "Переведи с акцентом на выделенное слово:\n«Именно Мария позвонила мне вчера» (акцент на Мария)",
+      "answer": "It was Maria who called me yesterday.",
+      "explanation": "Cleft sentence: It was + [выделяемая часть] + who/that + остаток предложения. Используется для логического ударения"
+    }
+  ]
+}
