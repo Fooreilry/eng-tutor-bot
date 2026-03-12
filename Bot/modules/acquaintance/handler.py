@@ -1,59 +1,24 @@
 from aiogram import F, Router
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
-from aiogram.types import (
-    CallbackQuery,
-    InlineKeyboardButton,
-    KeyboardButton,
-    Message,
-    ReplyKeyboardMarkup,
-)
+from aiogram.types import CallbackQuery, InlineKeyboardButton, Message
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-from Bot.keyboard import get_main_keyboard
-from Bot.states import UserRegistration
+from Bot.core.keyboard import get_main_keyboard
+from Bot.modules.acquaintance.keyboard import (
+    get_level_keyboard,
+    get_skip_keyboard,
+    get_testing_keyboard,
+)
+from Bot.modules.acquaintance.states import UserRegistration
 
-acquaintance_router = Router(name="Acquaintance")
-
-
-# --- Keyboards ---
-
-
-def get_level_keyboard() -> InlineKeyboardBuilder:
-    """Inline keyboard for English level selection"""
-    builder = InlineKeyboardBuilder()
-    levels = [
-        ("A1 - Beginner", "level_a1"),
-        ("A2 - Elementary", "level_a2"),
-        ("B1 - Intermediate", "level_b1"),
-        ("B2 - Upper-Intermediate", "level_b2"),
-    ]
-    for text, callback in levels:
-        builder.row(InlineKeyboardButton(text=text, callback_data=callback))
-    return builder
-
-
-def get_skip_keyboard() -> InlineKeyboardBuilder:
-    """Inline keyboard with skip button"""
-    builder = InlineKeyboardBuilder()
-    builder.row(InlineKeyboardButton(text="Skip", callback_data="skip_additional"))
-    return builder
-
-
-def get_testing_keyboard() -> InlineKeyboardBuilder:
-    """Inline keyboard for testing offer"""
-    builder = InlineKeyboardBuilder()
-    builder.row(
-        InlineKeyboardButton(text="Yep, let's go!", callback_data="start_testing"),
-        InlineKeyboardButton(text="Nah, later", callback_data="skip_testing"),
-    )
-    return builder
+router = Router(name="Acquaintance")
 
 
 # --- Start command ---
 
 
-@acquaintance_router.message(Command("start"))
+@router.message(Command("start"))
 async def cmd_start(message: Message, state: FSMContext):
     await state.clear()
 
@@ -81,7 +46,7 @@ async def cmd_start(message: Message, state: FSMContext):
 # --- About Alex ---
 
 
-@acquaintance_router.callback_query(F.data == "about_alex")
+@router.callback_query(F.data == "about_alex")
 async def about_alex(cb: CallbackQuery):
     await cb.answer()
 
@@ -112,7 +77,7 @@ async def about_alex(cb: CallbackQuery):
 # --- User registration flow ---
 
 
-@acquaintance_router.callback_query(F.data == "about_user")
+@router.callback_query(F.data == "about_user")
 async def start_registration(cb: CallbackQuery, state: FSMContext):
     await cb.answer()
 
@@ -124,7 +89,7 @@ async def start_registration(cb: CallbackQuery, state: FSMContext):
     await state.set_state(UserRegistration.name)
 
 
-@acquaintance_router.message(UserRegistration.name)
+@router.message(UserRegistration.name)
 async def process_name(message: Message, state: FSMContext):
     name = message.text.strip()
     await state.update_data(name=name)
@@ -139,7 +104,7 @@ async def process_name(message: Message, state: FSMContext):
     await state.set_state(UserRegistration.level)
 
 
-@acquaintance_router.callback_query(UserRegistration.level, F.data.startswith("level_"))
+@router.callback_query(UserRegistration.level, F.data.startswith("level_"))
 async def process_level(cb: CallbackQuery, state: FSMContext):
     await cb.answer()
 
@@ -168,7 +133,7 @@ async def process_level(cb: CallbackQuery, state: FSMContext):
     await state.set_state(UserRegistration.interests)
 
 
-@acquaintance_router.message(UserRegistration.interests)
+@router.message(UserRegistration.interests)
 async def process_interests(message: Message, state: FSMContext):
     interests = message.text.strip()
     await state.update_data(interests=interests)
@@ -187,7 +152,7 @@ async def process_interests(message: Message, state: FSMContext):
     await state.set_state(UserRegistration.additional)
 
 
-@acquaintance_router.callback_query(
+@router.callback_query(
     UserRegistration.additional, F.data == "skip_additional"
 )
 async def skip_additional(cb: CallbackQuery, state: FSMContext):
@@ -196,7 +161,7 @@ async def skip_additional(cb: CallbackQuery, state: FSMContext):
     await finish_registration(cb.message, state)
 
 
-@acquaintance_router.message(UserRegistration.additional)
+@router.message(UserRegistration.additional)
 async def process_additional(message: Message, state: FSMContext):
     additional = message.text.strip()
     await state.update_data(additional=additional)
@@ -207,7 +172,6 @@ async def finish_registration(message: Message, state: FSMContext):
     """Complete registration and show user data"""
     data = await state.get_data()
 
-    # Print user data (temporary, will save to DB later)
     print("\n" + "=" * 50)
     print("NEW USER REGISTERED:")
     print(f"  Name: {data.get('name')}")
@@ -216,7 +180,6 @@ async def finish_registration(message: Message, state: FSMContext):
     print(f"  Additional: {data.get('additional', 'Not provided')}")
     print("=" * 50 + "\n")
 
-    # Build prompt info (for future use)
     prompt_info = f"""
 User Profile:
 - Name: {data.get("name")}
@@ -227,7 +190,6 @@ User Profile:
     print("PROMPT INFO:")
     print(prompt_info)
 
-    # Don't clear state — keep user data (name, level, interests) for testing handler
     await state.set_state(None)
 
     await message.answer(
@@ -238,7 +200,6 @@ User Profile:
     level = data.get("level", "A1")
 
     if level == "A1":
-        # A1 — самый базовый уровень, тест не предлагаем
         await message.answer(
             "Мы начнём with the basics — step by step, no rush! "
             "Let's just chat and have fun! 🤙",

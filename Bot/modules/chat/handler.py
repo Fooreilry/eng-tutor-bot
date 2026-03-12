@@ -2,20 +2,23 @@ from aiogram import F, Router
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
-from Bot.keyboard import (
-    BTN_CHAT, BTN_DICTIONARY, BTN_PROFILE, BTN_TASKS, BTN_WORD_OF_DAY,
+from Bot.core.keyboard import (
+    BTN_CHAT,
+    BTN_DICTIONARY,
+    BTN_PROFILE,
+    BTN_TASKS,
+    BTN_WORD_OF_DAY,
     get_main_keyboard,
 )
-from Bot.states import ChatWithAlex
+from Bot.modules.chat.states import ChatWithAlex
 from Gemini.agent import chat_with_alex
 
-chat_router = Router(name="Chat")
+router = Router(name="Chat")
 
-# Все кнопки меню — чтобы не перехватывать их в состоянии чата
-MENU_BUTTONS = {"💬 Начать диалог", "🔤 Слово дня", "📝 Задания", "📖 Мой словарь", "👤 Профиль"}
+MENU_BUTTONS = {BTN_CHAT, BTN_WORD_OF_DAY, BTN_TASKS, BTN_DICTIONARY, BTN_PROFILE}
 
 
-@chat_router.message(F.text == BTN_CHAT)
+@router.message(F.text == BTN_CHAT)
 async def start_chat(message: Message, state: FSMContext):
     data = await state.get_data()
     name = data.get("name", message.from_user.first_name)
@@ -36,7 +39,7 @@ async def start_chat(message: Message, state: FSMContext):
     )
 
 
-@chat_router.message(ChatWithAlex.active, F.text.startswith("/stop"))
+@router.message(ChatWithAlex.active, F.text.startswith("/stop"))
 async def stop_chat(message: Message, state: FSMContext):
     await state.update_data(chat_history=[])
     await state.set_state(None)
@@ -47,7 +50,7 @@ async def stop_chat(message: Message, state: FSMContext):
     )
 
 
-@chat_router.message(ChatWithAlex.active, F.text.in_(MENU_BUTTONS))
+@router.message(ChatWithAlex.active, F.text.in_(MENU_BUTTONS))
 async def menu_button_in_chat(message: Message, state: FSMContext):
     """Если нажали кнопку меню — выходим из чата, показываем меню"""
     await state.update_data(chat_history=[])
@@ -58,7 +61,7 @@ async def menu_button_in_chat(message: Message, state: FSMContext):
     )
 
 
-@chat_router.message(ChatWithAlex.active)
+@router.message(ChatWithAlex.active)
 async def handle_chat_message(message: Message, state: FSMContext):
     if not message.text:
         await message.answer("Yo, я пока only text понимаю! Напиши что-нибудь 📝")
@@ -81,7 +84,6 @@ async def handle_chat_message(message: Message, state: FSMContext):
             additional=additional,
         )
 
-        # Сохраняем историю (последние 20 сообщений)
         history.append({"role": "user", "text": message.text})
         history.append({"role": "model", "text": response})
         if len(history) > 20:

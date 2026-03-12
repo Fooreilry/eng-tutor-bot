@@ -1,84 +1,26 @@
-import json
 import random
-from pathlib import Path
 
 from aiogram import F, Router
 from aiogram.fsm.context import FSMContext
-from aiogram.types import CallbackQuery, InlineKeyboardButton, Message
-from aiogram.utils.keyboard import InlineKeyboardBuilder
+from aiogram.types import CallbackQuery, Message
 
-from Bot.keyboard import get_main_keyboard
-from Bot.states import PlacementTest
+from Bot.core.keyboard import get_main_keyboard
+from Bot.modules.quiz.keyboard import (
+    build_options_keyboard,
+    build_results_keyboard,
+    build_skip_keyboard,
+)
+from Bot.modules.quiz.service import (
+    LEVELS_ORDER,
+    MAX_QUESTIONS,
+    PASS_THRESHOLD,
+    check_answer,
+    format_question_text,
+    get_available_questions,
+)
+from Bot.modules.quiz.states import PlacementTest
 
-testing_router = Router(name="Testing")
-
-# Load questions from test.json
-TEST_FILE = Path(__file__).parent.parent.parent / "test.json"
-with open(TEST_FILE, "r", encoding="utf-8") as f:
-    TEST_DATA = json.load(f)
-
-QUESTIONS = TEST_DATA["questions"]
-
-MAX_QUESTIONS = 10
-# Threshold percentage to pass the test
-PASS_THRESHOLD = 60
-
-# Levels ordered from lowest to highest
-LEVELS_ORDER = ["A1", "A2", "B1", "B2"]
-
-
-def get_available_questions(user_level: str) -> list[dict]:
-    """Get questions at or below the user's level."""
-    level_index = LEVELS_ORDER.index(user_level)
-    allowed_levels = LEVELS_ORDER[: level_index + 1]
-    return [q for q in QUESTIONS if q["level"] in allowed_levels]
-
-
-def build_options_keyboard(question: dict) -> InlineKeyboardBuilder:
-    """Build inline keyboard for multiple_choice questions."""
-
-    builder = InlineKeyboardBuilder()
-    if question["options"]:
-        for i, option in enumerate(question["options"]):
-            builder.row(
-                InlineKeyboardButton(text=option, callback_data=f"test_ans_{i}")
-            )
-    builder.row(
-        InlineKeyboardButton(text="Не знаю ответа", callback_data="test_ans_skip")
-    )
-    return builder
-
-
-def format_question_text(question: dict, current: int, total: int) -> str:
-    """Format question text with number and type hint."""
-    q_type = question["type"]
-
-    type_hints = {
-        "multiple_choice": "Выбери правильный вариант:",
-        "fill_in_the_blank": "Напиши ответ текстом:",
-        "translate": "Напиши перевод текстом:",
-        "error_correction": "Напиши исправленное предложение:",
-        "word_order": "Напиши правильное предложение:",
-    }
-    hint = type_hints.get(q_type, "")
-
-    return f"📝 Вопрос {current}/{total} [{question['level']}]\n\n{question['question']}\n\n{hint}"
-
-
-def check_answer(question: dict, user_answer: str) -> bool:
-    """Check if the user's answer is correct."""
-    q_type = question["type"]
-    clean = user_answer.strip().lower().rstrip(".")
-
-    if q_type == "multiple_choice":
-        return clean == question["answer"].strip().lower()
-
-    if q_type == "translate":
-        acceptable = question.get("acceptable_answers", [question["answer"]])
-        return clean in [a.strip().lower().rstrip(".") for a in acceptable]
-
-    # fill_in_the_blank, error_correction, word_order
-    return clean == question["answer"].strip().lower().rstrip(".")
+router = Router(name="Quiz")
 
 
 async def send_question(message: Message, state: FSMContext):
@@ -99,11 +41,7 @@ async def send_question(message: Message, state: FSMContext):
         kb = build_options_keyboard(question)
         await message.answer(text, reply_markup=kb.as_markup())
     else:
-        skip_kb = InlineKeyboardBuilder()
-        skip_kb.row(
-            InlineKeyboardButton(text="Не знаю ответа", callback_data="test_ans_skip")
-        )
-        await message.answer(text, reply_markup=skip_kb.as_markup())
+        await message.answer(text, reply_markup=build_skip_keyboard().as_markup())
 
 
 async def process_answer(message_or_cb, state: FSMContext, user_answer: str | None):
@@ -135,35 +73,12 @@ async def process_answer(message_or_cb, state: FSMContext, user_answer: str | No
         test_correct=correct_count,
     )
 
-    # Determine which message object to use for sending
     if isinstance(message_or_cb, CallbackQuery):
         msg = message_or_cb.message
     else:
         msg = message_or_cb
 
     await send_question(msg, state)
-
-
-def build_results_keyboard(passed: bool) -> InlineKeyboardBuilder:
-    """Build keyboard for test results screen."""
-    builder = InlineKeyboardBuilder()
-    builder.row(
-        InlineKeyboardButton(
-            text="📋 Показать историю", callback_data="test_show_history"
-        )
-    )
-    builder.row(
-        InlineKeyboardButton(
-            text="💬 Продолжить общение", callback_data="test_continue_chat"
-        )
-    )
-    if not passed:
-        builder.row(
-            InlineKeyboardButton(
-                text="⬇️ Понизить уровень", callback_data="test_downgrade"
-            )
-        )
-    return builder
 
 
 async def finish_test(message: Message, state: FSMContext):
@@ -192,7 +107,6 @@ async def finish_test(message: Message, state: FSMContext):
             f"или оставить как есть и принять challenge! 💪"
         )
 
-    # Save results but keep state data for history viewing
     await state.update_data(test_passed=passed)
     await state.set_state(None)
 
@@ -204,7 +118,7 @@ async def finish_test(message: Message, state: FSMContext):
 # --- Handlers ---
 
 
-@testing_router.callback_query(F.data == "start_testing")
+@router.callback_query(F.data == "start_testing")
 async def start_testing(cb: CallbackQuery, state: FSMContext):
     await cb.answer()
 
@@ -232,7 +146,7 @@ async def start_testing(cb: CallbackQuery, state: FSMContext):
     await send_question(cb.message, state)
 
 
-@testing_router.callback_query(F.data == "skip_testing")
+@router.callback_query(F.data == "skip_testing")
 async def skip_testing(cb: CallbackQuery, state: FSMContext):
     await cb.answer()
 
@@ -242,7 +156,7 @@ async def skip_testing(cb: CallbackQuery, state: FSMContext):
     )
 
 
-@testing_router.callback_query(
+@router.callback_query(
     PlacementTest.in_progress, F.data.startswith("test_ans_")
 )
 async def handle_mc_answer(cb: CallbackQuery, state: FSMContext):
@@ -260,7 +174,7 @@ async def handle_mc_answer(cb: CallbackQuery, state: FSMContext):
     await process_answer(cb, state, user_answer)
 
 
-@testing_router.message(PlacementTest.in_progress)
+@router.message(PlacementTest.in_progress)
 async def handle_text_answer(message: Message, state: FSMContext):
     await process_answer(message, state, message.text)
 
@@ -268,7 +182,7 @@ async def handle_text_answer(message: Message, state: FSMContext):
 # --- Post-test actions ---
 
 
-@testing_router.callback_query(F.data == "test_show_history")
+@router.callback_query(F.data == "test_show_history")
 async def show_history(cb: CallbackQuery, state: FSMContext):
     await cb.answer()
 
@@ -290,23 +204,20 @@ async def show_history(cb: CallbackQuery, state: FSMContext):
 
     text = "📋 История ответов:\n\n" + "\n\n".join(lines)
 
-    # Telegram message limit is 4096 chars, split if needed
     if len(text) <= 4096:
         await cb.message.answer(text)
     else:
-        # Split into chunks
         for i in range(0, len(text), 4096):
             await cb.message.answer(text[i : i + 4096])
 
 
-@testing_router.callback_query(F.data == "test_continue_chat")
+@router.callback_query(F.data == "test_continue_chat")
 async def continue_chat(cb: CallbackQuery, state: FSMContext):
     await cb.answer()
 
     data = await state.get_data()
     name = data.get("name", "buddy")
 
-    # Clear test data but keep user profile
     await state.update_data(
         test_questions=None,
         test_current=None,
@@ -321,7 +232,7 @@ async def continue_chat(cb: CallbackQuery, state: FSMContext):
     )
 
 
-@testing_router.callback_query(F.data == "test_downgrade")
+@router.callback_query(F.data == "test_downgrade")
 async def downgrade_level(cb: CallbackQuery, state: FSMContext):
     await cb.answer()
 
@@ -334,7 +245,6 @@ async def downgrade_level(cb: CallbackQuery, state: FSMContext):
         new_level = LEVELS_ORDER[current_index - 1]
         await state.update_data(level=new_level)
 
-        # Clear test data
         await state.update_data(
             test_questions=None,
             test_current=None,

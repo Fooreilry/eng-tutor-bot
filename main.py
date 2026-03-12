@@ -4,10 +4,10 @@ import os
 from aiogram import Bot, Dispatcher
 from dotenv import load_dotenv
 
-from Bot.handlers.acquaintance import acquaintance_router
-from Bot.handlers.chat import chat_router
-from Bot.handlers.menu import menu_router
-from Bot.handlers.testing import testing_router
+from Bot.modules.acquaintance import router as acquaintance_router
+from Bot.modules.quiz import router as quiz_router
+from Bot.modules.chat import router as chat_router
+from Bot.modules.menu import router as menu_router
 
 load_dotenv()
 
@@ -21,7 +21,7 @@ async def main():
     try:
         print("Старт программы...")
         disp.include_router(acquaintance_router)
-        disp.include_router(testing_router)
+        disp.include_router(quiz_router)
         disp.include_router(chat_router)
         disp.include_router(menu_router)
         await disp.start_polling(bot)
@@ -32,10 +32,4 @@ async def main():
 
 
 if __name__ == "__main__":
-    # response = client.models.generate_content(
-    #     model="gemini-3-flash-preview",
-    #     contents="Explain how AI works in a few words",
-    # )
-
-    # print(response)
     asyncio.run(main())
