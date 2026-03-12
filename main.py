@@ -5,9 +5,9 @@ from aiogram import Bot, Dispatcher
 from dotenv import load_dotenv
 
 from Bot.handlers.acquaintance import acquaintance_router
+from Bot.handlers.chat import chat_router
 from Bot.handlers.menu import menu_router
 from Bot.handlers.testing import testing_router
-from Gemini.client import client
 
 load_dotenv()
 
@@ -22,6 +22,7 @@ async def main():
         print("Старт программы...")
         disp.include_router(acquaintance_router)
         disp.include_router(testing_router)
+        disp.include_router(chat_router)
         disp.include_router(menu_router)
         await disp.start_polling(bot)
         print("Успешный запуск!")
