@@ -11,7 +11,7 @@ from Bot.core.keyboard import (
     get_main_keyboard,
 )
 from Bot.modules.chat.states import ChatWithAlex
-from Gemini.agent import chat_with_alex
+from gemini.agents.chat_agent import chat_with_alex
 
 router = Router(name="Chat")
 

@@ -1,7 +1,7 @@
 from google.genai import types
 
-from Gemini.client import client
-from Gemini.prompts import build_system_prompt
+from gemini.client import client
+from gemini.prompts.alex import build_system_prompt
 
 MODEL = "gemini-2.5-flash"
 

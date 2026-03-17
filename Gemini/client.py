@@ -1,8 +1,5 @@
-import os
 from google import genai
-from dotenv import load_dotenv
-load_dotenv()
 
+from core.config import config
 
-gmi_key = os.getenv("GEMINI_KEY")
-client = genai.Client(api_key=gmi_key)
+client = genai.Client(api_key=config.gemini_api_key)
